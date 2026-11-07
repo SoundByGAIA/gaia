@@ -14,7 +14,7 @@ JWTs, passwords, high-entropy strings) and reports a risk score. Your code never
 Requires Rust and GNAT (`apt install gnat`).
 
 ```bash
-cargo build --release          # if your gnat is gcc-14: GCC=gcc-14 cargo build --release
+cargo build --release          # override the compiler with GCC=gcc-N if auto-detection fails
 ./target/release/gaia ./src
 ./target/release/gaia . --json --fail-on-findings
 ```

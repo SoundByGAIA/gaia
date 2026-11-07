@@ -8,7 +8,14 @@ fn main() {
     let out = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     println!("cargo:rerun-if-changed={}", ada.display());
 
-    let gcc = std::env::var("GCC").unwrap_or_else(|_| "gcc".into());
+    // Use the gcc that matches the installed GNAT (gnat-N ships gnat1 only for gcc-N).
+    let gcc = std::env::var("GCC").unwrap_or_else(|_| {
+        let major = Command::new("gnatmake").arg("--version").output().ok()
+            .and_then(|o| String::from_utf8(o.stdout).ok())
+            .and_then(|v| v.split_whitespace().nth(1).map(|s| s.split('.').next().unwrap_or("").to_string()))
+            .filter(|m| !m.is_empty());
+        match major { Some(m) => format!("gcc-{m}"), None => "gcc".into() }
+    });
     let st = Command::new(&gcc)
         .args(["-c", "-O2", "-gnatA"])
         .arg(ada.join("gaia_rules.adb"))
