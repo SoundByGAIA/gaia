@@ -1,0 +1,3 @@
+[workspace]
+members = ["gaia-cli"]
+resolver = "2"

@@ -1,0 +1,17 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq gnat strace
+      - run: cargo build --release
+      - name: scanner finds a planted secret
+        run: |
+          mkdir t && echo 'k="AKIAABCDEFGHIJKLMNOP"' > t/a.env
+          ! ./target/release/gaia t --fail-on-findings
+      - name: no network syscalls
+        run: |
+          out=$(strace -f -e trace=network ./target/release/gaia t 2>&1 >/dev/null | grep -v '^+++' || true)
+          test -z "$out"

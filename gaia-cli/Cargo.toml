@@ -1,0 +1,15 @@
+[package]
+name = "gaia"
+version = "0.2.0"
+edition = "2021"
+description = "GAIA — air-gapped code security scanner. Zero network code; SPARK-proved risk core."
+license = "Apache-2.0"
+
+[[bin]]
+name = "gaia"
+path = "src/main.rs"
+
+[dependencies]
+regex = "1"
+walkdir = "2"
+serde_json = "1"

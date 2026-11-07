@@ -1,0 +1,5 @@
+target/
+*.key
+obj_proof/
+*.ali
+*.o

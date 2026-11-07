@@ -1,0 +1,14 @@
+ info: range check proved
+ info: division check proved
+ info: division check proved
+ info: range check proved
+ info: range check proved
+ info: implicit aspect Always_Terminates on "Severity_Weight" has been proved, subprogram will terminate
+ info: postcondition proved
+ info: implicit aspect Always_Terminates on "Risk_Score" has been proved, subprogram will terminate
+ info: postcondition proved
+ info: implicit aspect Always_Terminates on "Engineer_Days_Saved" has been proved, subprogram will terminate
+ info: postcondition proved
+ info: implicit aspect Always_Terminates on "Dollars_Saved" has been proved, subprogram will terminate
+ info: postcondition proved
+Success: all checks proved (13 checks).
