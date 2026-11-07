@@ -1,5 +1,17 @@
 # GAIA
 
+A family of air-gapped developer-security tools, all Apache-2.0, none with network code:
+
+| Tool | What it does |
+|---|---|
+| `gaia` | secret scanner + risk score |
+| `gaia-drift` | finds deprecated/removed third-party API usage (Stripe, PayPal, Twilio, OpenAI, ...) via a curated offline rule DB; `gaia-drift mock <service>` prints test webhook payloads |
+| `gaia-scrub` | redacts PII and secrets from logs/dumps before you share them (`placeholder`, `mask`, `hash` modes) |
+
+`gaia-drift`'s rule DB (`gaia-drift/src/drift_db.json`) is hand-curated and incomplete; PRs welcome.
+
+## gaia (scanner)
+
 Air-gapped code security scanner. It finds hardcoded secrets (private keys, cloud/API tokens,
 JWTs, passwords, high-entropy strings) and reports a risk score. Your code never leaves the machine.
 
@@ -36,8 +48,7 @@ risk score and "engineer-days / dollars saved" figures are heuristics, not measu
 
 ## Commercial
 
-Source is Apache-2.0. Paid options (support, custom rule packs, signed drift reports,
-one-off security audits): https://soundbygaia.com
+Source is Apache-2.0. Paid options (support, custom rule packs, one-off security audits): https://soundbygaia.com
 
 ## License
 

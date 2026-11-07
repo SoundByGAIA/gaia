@@ -1,0 +1,206 @@
+{
+  "version": "2026.09.28",
+  "rules": [
+    {
+      "service": "Stripe",
+      "pattern": "stripe\\.charges\\.create",
+      "status": "deprecated",
+      "since": "2022",
+      "replacement": "stripe.paymentIntents.create",
+      "severity": "high",
+      "note": "Charges API deprecated → PaymentIntents (SCA compliance)"
+    },
+    {
+      "service": "Stripe",
+      "pattern": "source\\s*[:=]\\s*[\"']tok_",
+      "status": "deprecated",
+      "since": "2023",
+      "replacement": "payment_method",
+      "severity": "high",
+      "note": "Token sources deprecated → PaymentMethods"
+    },
+    {
+      "service": "Stripe",
+      "pattern": "stripe\\.(orders|skus)\\.",
+      "status": "deprecated",
+      "since": "2022",
+      "replacement": "Products/Prices + Payment Links",
+      "severity": "medium",
+      "note": "Orders/SKUs API removed"
+    },
+    {
+      "service": "PayPal",
+      "pattern": "/v1/payments/payment",
+      "status": "deprecated",
+      "since": "2021",
+      "replacement": "/v2/checkout/orders",
+      "severity": "critical",
+      "note": "PayPal v1 Payments API shut down → v2 Orders"
+    },
+    {
+      "service": "PayPal",
+      "pattern": "NVP|/nvp",
+      "status": "deprecated",
+      "since": "2020",
+      "replacement": "REST v2",
+      "severity": "critical",
+      "note": "Classic NVP/SOAP API retired"
+    },
+    {
+      "service": "Twilio",
+      "pattern": "MessagingServiceSid",
+      "status": "changed",
+      "since": "2023",
+      "replacement": "messagingServiceSid (v5 camelCase)",
+      "severity": "medium",
+      "note": "Twilio SDK v5 parameter casing changed"
+    },
+    {
+      "service": "Twilio",
+      "pattern": "\\.sms\\.messages",
+      "status": "deprecated",
+      "since": "2022",
+      "replacement": "messages resource",
+      "severity": "medium",
+      "note": "Eski /SMS/Messages → /Messages"
+    },
+    {
+      "service": "Iyzico",
+      "pattern": "paymentId",
+      "status": "watch",
+      "since": "2024",
+      "replacement": "paymentId (tip doğrula)",
+      "severity": "medium",
+      "note": "Iyzico webhook field types may vary by version"
+    },
+    {
+      "service": "Iyzico",
+      "pattern": "conversationId",
+      "status": "watch",
+      "since": "2024",
+      "replacement": "conversationId (string zorunlu)",
+      "severity": "watch",
+      "note": "conversationId type consistency"
+    },
+    {
+      "service": "GitHub",
+      "pattern": "api\\.github\\.com/.*access_token=",
+      "status": "deprecated",
+      "since": "2021",
+      "replacement": "Authorization: Bearer header",
+      "severity": "high",
+      "note": "Query-param token removed → header"
+    },
+    {
+      "service": "GitHub",
+      "pattern": "/repos/[^/]+/[^/]+/git/refs/heads",
+      "status": "changed",
+      "since": "2023",
+      "replacement": "application/vnd.github+json",
+      "severity": "watch",
+      "note": "REST Accept header versioning"
+    },
+    {
+      "service": "AWS",
+      "pattern": "aws-sdk[\"']\\)|require\\(['\"]aws-sdk['\"]\\)",
+      "status": "deprecated",
+      "since": "2023",
+      "replacement": "@aws-sdk/client-* (v3 modüler)",
+      "severity": "high",
+      "note": "AWS SDK v2 (JS) maintenance-only → v3"
+    },
+    {
+      "service": "AWS",
+      "pattern": "S3\\.getSignedUrl\\(",
+      "status": "changed",
+      "since": "2023",
+      "replacement": "@aws-sdk/s3-request-presigner",
+      "severity": "medium",
+      "note": "presigned URL API changed in v3"
+    },
+    {
+      "service": "SendGrid",
+      "pattern": "/api/mail\\.send\\.json|sendgrid/mail\\b",
+      "status": "deprecated",
+      "since": "2021",
+      "replacement": "v3 /v3/mail/send",
+      "severity": "high",
+      "note": "SendGrid v2 Mail API KAPATILDI"
+    },
+    {
+      "service": "Firebase",
+      "pattern": "firebase\\.database\\(\\)",
+      "status": "watch",
+      "since": "2023",
+      "replacement": "getDatabase() (modular v9)",
+      "severity": "medium",
+      "note": "Firebase v8 namespaced API → v9 modular"
+    },
+    {
+      "service": "Google",
+      "pattern": "www\\.googleapis\\.com/oauth2/v1",
+      "status": "deprecated",
+      "since": "2021",
+      "replacement": "oauth2/v3 / OpenID Connect",
+      "severity": "high",
+      "note": "Google OAuth v1/v2 userinfo deprecated"
+    },
+    {
+      "service": "Google",
+      "pattern": "maps\\.googleapis\\.com/maps/api/js\\?.*(?!key=)",
+      "status": "changed",
+      "since": "2023",
+      "replacement": "key zorunlu + loading=async",
+      "severity": "medium",
+      "note": "Maps JS API anahtar+async zorunlu"
+    },
+    {
+      "service": "OpenAI",
+      "pattern": "openai\\.Completion\\.create|/v1/completions\\b",
+      "status": "deprecated",
+      "since": "2023",
+      "replacement": "chat.completions (gpt-3.5+)",
+      "severity": "high",
+      "note": "Legacy Completions API deprecated → Chat Completions"
+    },
+    {
+      "service": "OpenAI",
+      "pattern": "text-davinci-\\d+",
+      "status": "deprecated",
+      "since": "2024",
+      "replacement": "gpt-4o-mini / gpt-4o",
+      "severity": "high",
+      "note": "davinci/curie modelleri KAPATILDI"
+    },
+    {
+      "service": "Node",
+      "pattern": "request\\(['\"]|require\\(['\"]request['\"]\\)",
+      "status": "deprecated",
+      "since": "2020",
+      "replacement": "fetch/axios/got",
+      "severity": "medium",
+      "note": "'request' paketi terk edildi (deprecated)"
+    },
+    {
+      "service": "Node",
+      "pattern": "crypto\\.createCipher\\b",
+      "status": "deprecated",
+      "since": "2018",
+      "replacement": "crypto.createCipheriv",
+      "severity": "high",
+      "note": "createCipher insecure+deprecated → createCipheriv"
+    },
+    {
+      "service": "Slack",
+      "pattern": "chat\\.postMessage.*as_user",
+      "status": "deprecated",
+      "since": "2021",
+      "replacement": "bot token + yeni auth",
+      "severity": "medium",
+      "note": "Slack as_user parametresi deprecated"
+    }
+  ],
+  "updated": "2026-09-28",
+  "sources_checked": 6,
+  "update_channel": "offline-pack"
+}

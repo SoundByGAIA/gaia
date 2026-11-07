@@ -1,0 +1,5 @@
+project Drift_Rules is
+   for Source_Dirs use (".");
+   for Object_Dir use "obj_proof";
+   for Main use ();
+end Drift_Rules;

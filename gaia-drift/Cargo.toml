@@ -1,0 +1,15 @@
+[package]
+name = "gaia-drift"
+version = "0.2.0"
+edition = "2021"
+description = "GAIA Drift-Gate — external API/webhook drift scanner. Offline, deterministic, no AI."
+license = "Apache-2.0"
+
+[[bin]]
+name = "gaia-drift"
+path = "src/main.rs"
+
+[dependencies]
+regex = "1"
+walkdir = "2"
+serde_json = "1"

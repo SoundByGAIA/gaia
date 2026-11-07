@@ -1,3 +1,8 @@
 [workspace]
-members = ["gaia-cli"]
+members = ["gaia-cli", "gaia-drift", "gaia-scrub"]
 resolver = "2"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true

@@ -11,6 +11,11 @@ jobs:
         run: |
           mkdir t && echo 'k="AKIAABCDEFGHIJKLMNOP"' > t/a.env
           ! ./target/release/gaia t --fail-on-findings
+      - name: drift and scrub work
+        run: |
+          echo 'stripe.charges.create(x)' > t/d.js
+          ./target/release/gaia-drift t | grep -q Stripe
+          echo 'a@b.com' | ./target/release/gaia-scrub - 2>/dev/null | grep -q EMAIL
       - name: no network syscalls
         run: |
           out=$(strace -f -e trace=network ./target/release/gaia t 2>&1 >/dev/null | grep -v '^+++' || true)
