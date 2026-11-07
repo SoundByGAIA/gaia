@@ -1,15 +1,29 @@
 name: GAIA secret scan
-description: Air-gapped secret scanner. Fails the job when secrets are found.
+description: Air-gapped secret scanner. Fails the job when secrets are found. Scanning makes no network calls.
 inputs:
   path:
     description: Directory to scan
     default: "."
+  version:
+    description: Release tag to download (e.g. v0.2.0). Falls back to building from source if the download fails.
+    default: "v0.2.0"
 runs:
   using: composite
   steps:
-    - run: sudo apt-get update -qq && sudo apt-get install -y -qq gnat
+    - name: Install gaia
       shell: bash
-    - run: cargo build --release --manifest-path "${{ github.action_path }}/Cargo.toml"
+      run: |
+        set -e
+        url="https://github.com/SoundByGAIA/gaia/releases/download/${{ inputs.version }}"
+        if curl -fsSL -o /tmp/gaia "$url/gaia-linux-x64" && curl -fsSL -o /tmp/SHA256SUMS "$url/SHA256SUMS" \
+           && (cd /tmp && grep ' gaia-linux-x64$' SHA256SUMS | sed 's/gaia-linux-x64/gaia/' | sha256sum -c -); then
+          chmod +x /tmp/gaia
+        else
+          echo "release download failed; building from source"
+          sudo apt-get update -qq && sudo apt-get install -y -qq gnat
+          cargo build --release --manifest-path "${{ github.action_path }}/Cargo.toml"
+          cp "${{ github.action_path }}/target/release/gaia" /tmp/gaia
+        fi
+    - name: Scan
       shell: bash
-    - run: ${{ github.action_path }}/target/release/gaia "${{ inputs.path }}" --fail-on-findings
-      shell: bash
+      run: /tmp/gaia "${{ inputs.path }}" --fail-on-findings

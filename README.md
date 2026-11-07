@@ -36,9 +36,22 @@ Re-run the proof: `cd gaia-core-ada && gnatprove -P gaia_rules.gpr --level=2` (n
 ## GitHub Action
 
 ```yaml
-- uses: SoundByGAIA/gaia@main
+- uses: SoundByGAIA/gaia@v0.2.0
   with:
     path: .
+```
+
+It downloads the checksum-verified release binary (falls back to building from source).
+
+```yaml
+# example: fail PRs that add secrets
+on: pull_request
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: SoundByGAIA/gaia@v0.2.0
 ```
 
 ## Scope and limits
