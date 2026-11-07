@@ -36,7 +36,7 @@ Re-run the proof: `cd gaia-core-ada && gnatprove -P gaia_rules.gpr --level=2` (n
 ## GitHub Action
 
 ```yaml
-- uses: SoundByGAIA/gaia@v0.2.0
+- uses: SoundByGAIA/gaia@v0.2.1
   with:
     path: .
 ```
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: SoundByGAIA/gaia@v0.2.0
+      - uses: SoundByGAIA/gaia@v0.2.1
 ```
 
 ## Comparison

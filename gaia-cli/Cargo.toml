@@ -1,6 +1,6 @@
 [package]
 name = "gaia"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "GAIA — air-gapped code security scanner. Zero network code; SPARK-proved risk core."
 license = "Apache-2.0"

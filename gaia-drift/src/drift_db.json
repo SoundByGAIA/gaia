@@ -147,12 +147,12 @@
     },
     {
       "service": "Google",
-      "pattern": "maps\\.googleapis\\.com/maps/api/js\\?.*(?!key=)",
+      "pattern": "maps\\.googleapis\\.com/maps/api/js\\?",
       "status": "changed",
       "since": "2023",
       "replacement": "key zorunlu + loading=async",
       "severity": "medium",
-      "note": "Maps JS API anahtar+async zorunlu"
+      "note": "Maps JS API: key and loading=async are required; check that this URL passes both"
     },
     {
       "service": "OpenAI",

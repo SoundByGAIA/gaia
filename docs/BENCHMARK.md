@@ -1,14 +1,19 @@
 # GAIA vs gitleaks — honest comparison
 
-Date: 2026-11-07. GAIA v0.2.0 vs gitleaks (latest via `go install`), both on default rules, run with
+Date: 2026-11-07. GAIA v0.2.1 vs gitleaks (latest via `go install`), both on default rules, run with
 `gitleaks detect --no-git` and `gaia <dir> --json`. Corpora are public repositories that contain
 **intentionally fake** secrets, so no real credentials or personal data were involved.
 
 | Corpus | GAIA findings | gitleaks findings | Same file:line | GAIA only | gitleaks only |
 |---|---|---|---|---|---|
-| Plazmaz/leaky-repo | 24 | 22 | 11 | 13 | 11 |
-| trufflesecurity/test_keys | 2 | 3 | 2 | 0 | 1 |
-| OWASP/wrongsecrets | 112 | 54 | 15 | 97 | 39 |
+| Plazmaz/leaky-repo | 41 | 22 | 22 | 19 | 0 |
+| trufflesecurity/test_keys | 3 | 3 | 3 | 0 | 0 |
+| OWASP/wrongsecrets | 114 | 54 | 7 | 107 | 47 |
+
+Counts are distinct file:line locations. v0.2.0 numbers were 24/22/11, 2/3/2 and 112/54/15 (computed with a
+looser matching method, so the wrongsecrets overlap is not comparable). v0.2.1 added a rule for unquoted
+config values and Slack webhooks. Most of the 47 wrongsecrets lines only gitleaks reports are
+`generic-api-key` hits on container image tags, which look like false positives.
 
 ## How to read this
 

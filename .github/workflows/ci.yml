@@ -16,6 +16,13 @@ jobs:
           echo 'stripe.charges.create(x)' > t/d.js
           ./target/release/gaia-drift t | grep -q Stripe
           echo 'a@b.com' | ./target/release/gaia-scrub - 2>/dev/null | grep -q EMAIL
+          # hash mode: option value must not be taken for the input file; keyed output is stable with a key
+          printf 'a@b.com\n' > /tmp/h.log
+          GAIA_HASH_KEY=k ./target/release/gaia-scrub --mode hash /tmp/h.log 2>/dev/null | grep -Eq 'EMAIL#[0-9a-f]{16}'
+          # in-place must fail loudly when the write fails, and rewrite when it works
+          ./target/release/gaia-scrub --in-place /tmp/h.log 2>/dev/null; grep -q '\[EMAIL\]' /tmp/h.log
+          ./target/release/gaia-scrub --in-place /nonexistent/x.log 2>/dev/null && exit 1 || true
+          cargo test --release -p gaia-drift
       - name: no network syscalls
         run: |
           out=$(strace -f -e trace=network ./target/release/gaia t 2>&1 >/dev/null | grep -v '^+++' || true)

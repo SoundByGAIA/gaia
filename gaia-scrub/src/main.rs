@@ -6,7 +6,8 @@
 // Modes: placeholder (default) · mask · hash (deterministic — preserves relationships).
 use std::{env, fs, io::{self, Read, Write}};
 use regex::Regex;
-use sha2::{Sha256, Digest};
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
 
 fn is_turkish() -> bool {
     env::var("GAIA_LANG").map(|v| v.eq_ignore_ascii_case("tr")).unwrap_or(false)
@@ -85,9 +86,25 @@ fn ipv6_ok(s: &str) -> bool {
 #[derive(Clone, Copy, PartialEq)]
 enum Mode { Placeholder, Mask, Hash }
 
+// Keyed HMAC-SHA256, 64-bit tag. The key comes from GAIA_HASH_KEY (stable across runs) or, if unset,
+// a random per-run key (relationships hold within one run only). Hashing guessable values such as
+// emails is pseudonymisation, not anonymisation: do not treat the output as safe to publish.
+static HASH_KEY: std::sync::OnceLock<Vec<u8>> = std::sync::OnceLock::new();
+fn hash_key() -> &'static [u8] {
+    HASH_KEY.get_or_init(|| {
+        if let Ok(k) = env::var("GAIA_HASH_KEY") { if !k.is_empty() { return k.into_bytes(); } }
+        let mut b = [0u8; 32];
+        fs::File::open("/dev/urandom").and_then(|mut f| f.read_exact(&mut b)).unwrap_or_else(|e| {
+            eprintln!("❌ no randomness for hash mode (set GAIA_HASH_KEY): {e}");
+            std::process::exit(1);
+        });
+        b.to_vec()
+    })
+}
 fn short_hash(s: &str) -> String {
-    let mut h = Sha256::new(); h.update(s.as_bytes());
-    hex::encode(&h.finalize()[..3])
+    let mut m = <Hmac<Sha256> as Mac>::new_from_slice(hash_key()).expect("hmac accepts any key length");
+    m.update(s.as_bytes());
+    hex::encode(&m.finalize().into_bytes()[..8])
 }
 fn mask_value(s: &str) -> String {
     let t = s.trim();
@@ -150,6 +167,27 @@ fn scrub(input: &str, pats: &[Pat], mode: Mode) -> ScrubResult {
     ScrubResult { text: out, counts, total }
 }
 
+// First argument that is neither a flag nor the value of an option that takes one.
+fn positional(args: &[String]) -> Option<String> {
+    let mut i = 1;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--mode" | "-o" => i += 2,
+            a if a.starts_with('-') && a != "-" => i += 1,
+            a => return Some(a.to_string()),
+        }
+    }
+    None
+}
+
+// Write to a temp file in the same directory, then rename over the target.
+fn write_atomic(path: &str, text: &str) -> io::Result<()> {
+    let tmp = format!("{path}.gaia-tmp-{}", std::process::id());
+    fs::write(&tmp, text)?;
+    if let Ok(meta) = fs::metadata(path) { let _ = fs::set_permissions(&tmp, meta.permissions()); }
+    fs::rename(&tmp, path).map_err(|e| { let _ = fs::remove_file(&tmp); e })
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let flag = |name: &str| args.iter().any(|a| a == name);
@@ -166,7 +204,7 @@ fn main() {
         _ => Mode::Placeholder,
     };
     // girdi: ilk bayrak-olmayan argüman = dosya, ya da '-' = stdin
-    let target = args.iter().skip(1).find(|a| !a.starts_with('-')).cloned()
+    let target = positional(&args)
         .or_else(|| if flag("-") { Some("-".into()) } else { None });
     let input = match target.as_deref() {
         Some("-") | None => { let mut s = String::new(); io::stdin().read_to_string(&mut s).ok(); s }
@@ -195,7 +233,10 @@ fn main() {
         eprint_report(&res, &format!("→ {out_path}"));
     } else if flag("--in-place") {
         if let Some(path) = target.as_deref().filter(|t| *t != "-") {
-            fs::write(path, &res.text).ok();
+            if let Err(e) = write_atomic(path, &res.text) {
+                eprintln!("❌ could not write {path}: {e}");
+                std::process::exit(1);
+            }
             eprint_report(&res, &format!("→ {path} (in-place)"));
         } else {
             eprintln!("{}", if is_turkish() { "--in-place için bir dosya gerekir (stdin değil)." }

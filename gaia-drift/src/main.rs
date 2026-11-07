@@ -19,9 +19,14 @@ fn is_turkish() -> bool { env::var("GAIA_LANG").map(|v| v.eq_ignore_ascii_case("
 
 struct Rule { service:String, re:Regex, status:String, replacement:String, severity:String, note:String }
 fn load_rules() -> Vec<Rule> {
-    let v: serde_json::Value = serde_json::from_str(DRIFT_DB).unwrap_or(serde_json::json!({"rules":[]}));
+    let v: serde_json::Value = serde_json::from_str(DRIFT_DB).unwrap_or_else(|e| { eprintln!("❌ drift_db.json is invalid: {e}"); std::process::exit(2); });
+    // fail closed: a rule that does not compile must stop the run, never be skipped silently
     v["rules"].as_array().cloned().unwrap_or_default().iter().filter_map(|r| Some(Rule{
-        service:r["service"].as_str()?.into(), re:Regex::new(r["pattern"].as_str()?).ok()?,
+        service:r["service"].as_str()?.into(),
+        re:Regex::new(r["pattern"].as_str()?).unwrap_or_else(|e| {
+            eprintln!("❌ invalid rule pattern for {}: {e}", r["service"]);
+            std::process::exit(2);
+        }),
         status:r["status"].as_str().unwrap_or("").into(), replacement:r["replacement"].as_str().unwrap_or("").into(),
         severity:r["severity"].as_str().unwrap_or("medium").into(), note:r["note"].as_str().unwrap_or("").into(),
     })).collect()
@@ -147,5 +152,17 @@ fn main() {
     } else {
         println!("\n  Note: curated drift-DB ({} rule(s), v{}) offline matching — curation, not divination.",
                  rules.len(), serde_json::from_str::<serde_json::Value>(DRIFT_DB).ok().and_then(|v| v["version"].as_str().map(String::from)).unwrap_or_default());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn every_rule_in_the_db_compiles() {
+        let v: serde_json::Value = serde_json::from_str(super::DRIFT_DB).expect("drift_db.json parses");
+        for r in v["rules"].as_array().expect("rules array") {
+            let p = r["pattern"].as_str().expect("pattern is a string");
+            regex::Regex::new(p).unwrap_or_else(|e| panic!("rule {} does not compile: {e}", r["service"]));
+        }
     }
 }

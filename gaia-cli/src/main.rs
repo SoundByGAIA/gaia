@@ -35,8 +35,11 @@ fn rules() -> Vec<Rule> {
         ("AWS Access Key", 4, r"AKIA[0-9A-Z]{16}"),
         ("Google API Key", 3, r"AIza[0-9A-Za-z_\-]{35}"),
         ("Slack Token", 3, r"xox[baprs]-[0-9A-Za-z-]{10,}"),
+        ("Slack Webhook", 3, r"https://hooks\.slack\.com/services/T[0-9A-Z]{8,}/B[0-9A-Z]{8,}/[0-9A-Za-z]{20,}"),
         ("JWT Token", 3, r"eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}"),
-        ("Hardcoded Secret", 3, r#"(?i)(api[_-]?key|secret|token|password|passwd|pwd|access[_-]?key)\s*[:=]\s*["'][^"']{8,}["']"#),
+        ("Hardcoded Secret", 3, r#"(?i)(api[_-]?key|secret|token|password|passwd|pwd|access[_-]?key)["']?\s*[:=]\s*["'][^"']{8,}["']"#),
+        // unquoted values in .env / .ini / YAML / .npmrc style config files
+        ("Hardcoded Secret (config)", 3, r#"(?i)(?:api[_-]?key|secret[_-]?(?:access[_-]?)?key(?:_base)?|access[_-]?key|auth[_-]?token)\s*[:=]\s*[A-Za-z0-9/+_\-]{20,}\s*(?:[#;].*)?$"#),
         ("High-Entropy String", 2, r#"["'][A-Za-z0-9+/]{40,}={0,2}["']"#),
     ];
     defs.iter()

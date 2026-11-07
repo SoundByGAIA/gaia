@@ -5,8 +5,8 @@ inputs:
     description: Directory to scan
     default: "."
   version:
-    description: Release tag to download (e.g. v0.2.0). Falls back to building from source if the download fails.
-    default: "v0.2.0"
+    description: Release tag to download (e.g. v0.2.1). Falls back to building from source if the download fails.
+    default: "v0.2.1"
 runs:
   using: composite
   steps:
