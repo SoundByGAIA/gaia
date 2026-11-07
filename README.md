@@ -54,6 +54,10 @@ jobs:
       - uses: SoundByGAIA/gaia@v0.2.0
 ```
 
+## Comparison
+
+See [docs/BENCHMARK.md](docs/BENCHMARK.md) for an honest side-by-side with gitleaks.
+
 ## Scope and limits
 
 Regex-based; it will have false positives and misses. It is not a replacement for a full SAST suite. The
